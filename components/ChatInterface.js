@@ -344,7 +344,6 @@ export default function ChatInterface({
               </button>
             </form>
             <p className="text-[10px] text-white/30 text-center mt-3 uppercase tracking-tight">
-              Powered by NVIDIA AI · Llama 3.1
             </p>
           </div>
         </div>
