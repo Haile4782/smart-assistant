@@ -13,6 +13,7 @@
     "axios": "^1.15.2",
     "dotenv": "^17.4.2",
     "firebase": "^12.12.1",
+    "lucide-react": "^1.11.0",
     "next": "^16.2.4",
     "node-telegram-bot-api": "^0.67.0",
     "react": "^19.2.5",
