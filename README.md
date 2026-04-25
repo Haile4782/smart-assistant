@@ -8,8 +8,8 @@ Built as an **agentic AI system** using **Next.js, NVIDIA NIM API, and Telegram 
 
 ## 🚀 Live Demo
 
-- 🌐 Web App: https://your-vercel-link.vercel.app  
-- 🤖 Telegram Bot: @your_bot_username  
+- 🌐 Web App: https://my-vercel-link.vercel.app  
+- 🤖 Telegram Bot: @smart_daily_assistant_bot  
 
 ---
 
@@ -119,7 +119,7 @@ This project follows secure coding practices:
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-username/smart-assistant.git
+git clone https://github.com/Haile4782/smart-assistant.git
 cd smart-assistant
 ````
 
@@ -214,36 +214,33 @@ smart-assistant/
 
 ---
 
-## 🎯 Evaluation Highlights
+## 📊 Example Output
 
-### ✔ Agent Architecture (30%)
+### Input:
 
-* Shared AI backend for Web & Telegram
-* Modular API design
-* Clear separation of concerns
+```
+Plan my study schedule for 3 days
+```
 
-### ✔ Security (25%)
+### Output:
 
-* Environment variables used
-* No API keys exposed
-* Secure backend API calls
+```
+📌 Summary:
+A structured 3-day study plan to help organize learning effectively.
 
-### ✔ Functionality (20%)
+📋 Steps:
+1. Identify subjects
+2. Allocate time slots
+3. Add review sessions
 
-* Working web chatbot
-* Working Telegram bot
-* Real AI responses
+🔥 Priority:
+High: Identify subjects
+Medium: Allocate schedule
+Low: Add breaks
 
-### ✔ UI/UX (15%)
-
-* Clean and minimal interface
-* Responsive chat layout
-
-### ✔ Documentation (10%)
-
-* Clear setup instructions
-* Architecture explanation
-* Deployment guide
+❓ Follow-up question:
+What subjects are you currently studying?
+```
 
 ---
 
@@ -265,4 +262,6 @@ Developed as part of an **AI Engineer Assessment Project** for ELEC LLC.
 
 ## 📌 License
 
-This project is for educational and assessment purposes.
+This project is for educational and assessment purposes only.
+
+````
