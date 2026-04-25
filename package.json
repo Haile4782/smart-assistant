@@ -9,12 +9,15 @@
   },
   "type": "module",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "axios": "^1.15.2",
     "dotenv": "^17.4.2",
+    "firebase": "^12.12.1",
     "next": "^16.2.4",
     "node-telegram-bot-api": "^0.67.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   }
 }

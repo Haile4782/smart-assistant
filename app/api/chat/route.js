@@ -1,59 +1,41 @@
-import axios from "axios";
-
-// simple in-memory store (upgrade later to DB)
-const memoryStore = new Map();
+import { getAssistantResponse } from "@/lib/assistant";
 
 export async function POST(req) {
-  try {
-    const { message, userId = "default" } = await req.json();
+  const { message, history } = await req.json();
 
-    if (!message) {
-      return Response.json({ error: "No message" }, { status: 400 });
-    }
+  const encoder = new TextEncoder();
 
-    // get old memory
-    const history = memoryStore.get(userId) || [];
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        const result = await getAssistantResponse(message, history);
 
-    const aiPrompt = `
-You are a Smart Daily Assistant.
+        let text = "";
 
-Use conversation memory below:
-${history.map(h => `${h.role}: ${h.text}`).join("\n")}
+        if (result.type === "plan") {
+          text += `🎯 ${result.goal}\n\n`;
+          result.steps.forEach((s, i) => {
+            text += `${i + 1}. [${s.priority}] ${s.step}\n`;
+          });
+        } else if (result.type === "clarification") {
+          text = result.question;
+        } else {
+          text = result.text;
+        }
 
-User: ${message}
+        // ✨ STREAM character by character
+        for (let i = 0; i < text.length; i++) {
+          controller.enqueue(encoder.encode(text[i]));
+          await new Promise((r) => setTimeout(r, 10)); // typing speed
+        }
 
-Respond clearly in structured format:
-Summary, Steps, Priority, Follow-up question
-`;
-
-    const response = await axios.post(
-      "https://integrate.api.nvidia.com/v1/chat/completions",
-      {
-        model: "meta/llama-3.1-8b-instruct",
-        messages: [{ role: "user", content: aiPrompt }],
-        temperature: 0.7,
-        max_tokens: 600,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.NVIDIA_API_KEY}`,
-          "Content-Type": "application/json",
-        },
+        controller.close();
+      } catch (err) {
+        controller.enqueue(encoder.encode("Error generating response"));
+        controller.close();
       }
-    );
+    },
+  });
 
-    const reply = response.data.choices[0].message.content;
-
-    // update memory
-    memoryStore.set(userId, [
-      ...history,
-      { role: "user", text: message },
-      { role: "ai", text: reply },
-    ]);
-
-    return Response.json({ reply });
-  } catch (err) {
-    console.error(err);
-    return Response.json({ error: "AI failed" }, { status: 500 });
-  }
+  return new Response(stream);
 }
