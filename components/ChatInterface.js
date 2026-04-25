@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Menu, X, Plus, MessageSquare, Send, Bot, User, Trash2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 export default function ChatInterface({
   chats = [],
@@ -20,6 +21,42 @@ export default function ChatInterface({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeChat.messages, loading]);
+
+  // 🎨 Helper to render a plan as a beautiful task card
+  const renderPlan = (goal, steps) => {
+    const priorityColors = {
+      High: "text-red-400 bg-red-400/10 border-red-400/30",
+      Medium: "text-amber-400 bg-amber-400/10 border-amber-400/30",
+      Low: "text-emerald-400 bg-emerald-400/10 border-emerald-400/30",
+    };
+
+    return (
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
+        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <span className="text-2xl">🎯</span> {goal}
+        </h3>
+        <ul className="space-y-3">
+          {steps.map((step, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <div className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center mt-0.5 shrink-0">
+                <div className="w-2 h-2 rounded-full bg-indigo-400" />
+              </div>
+              <div className="flex-1">
+                <span
+                  className={`inline-block px-2 py-0.5 rounded text-xs font-semibold border ${
+                    priorityColors[step.priority] || priorityColors.Medium
+                  }`}
+                >
+                  {step.priority}
+                </span>
+                <p className="text-white/90 text-sm mt-1">{step.step}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -50,14 +87,12 @@ export default function ChatInterface({
       if (data.error) {
         reply = `⚠️ ${data.error}`;
       } else if (data.type === "plan") {
-        reply = `🎯 **Goal:** ${data.goal}\n`;
-        data.steps.forEach((step, i) => {
-          reply += `\n${i + 1}. [${step.priority}] ${step.step}`;
-        });
+        // We'll store the raw goal/steps in content for later rendering
+        reply = JSON.stringify({ type: "plan", goal: data.goal, steps: data.steps });
       } else if (data.type === "clarification") {
-        reply = data.question;
+        reply = data.question;   // plain text, will be rendered with markdown
       } else if (data.type === "general") {
-        reply = data.text;
+        reply = data.text;       // rendered with markdown
       } else {
         reply = data.rawText || "I couldn't process that.";
       }
@@ -77,15 +112,38 @@ export default function ChatInterface({
     }
   };
 
-  // Close sidebar when a chat is selected (mobile mainly)
   const handleSelectChat = (id) => {
     onSelectChat(id);
     setSidebarOpen(false);
   };
 
+  // Renders a single message – detects if it's a stored plan object
+  const renderMessageContent = (msg) => {
+    if (msg.role !== "assistant") {
+      return <p className="text-sm whitespace-pre-wrap">{msg.content}</p>;
+    }
+
+    // Check if the content is a serialized plan (we stored JSON)
+    try {
+      const parsed = JSON.parse(msg.content);
+      if (parsed.type === "plan" && parsed.goal && parsed.steps) {
+        return renderPlan(parsed.goal, parsed.steps);
+      }
+    } catch (e) {
+      // Not JSON, render as markdown
+    }
+
+    // For everything else, use ReactMarkdown
+    return (
+      <div className="prose prose-invert max-w-none text-sm">
+        <ReactMarkdown>{msg.content}</ReactMarkdown>
+      </div>
+    );
+  };
+
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#0a0a1a] font-sans">
-      {/* Animated background gradient orbs */}
+      {/* Animated background orbs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-gradient-to-br from-indigo-600/30 to-purple-600/30 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute -bottom-20 -right-20 w-[500px] h-[500px] bg-gradient-to-br from-cyan-600/20 to-pink-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
@@ -98,7 +156,7 @@ export default function ChatInterface({
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Sidebar header */}
+        {/* ... sidebar content (unchanged) ... */}
         <div className="p-4 border-b border-white/10">
           <button
             onClick={onNewChat}
@@ -108,7 +166,6 @@ export default function ChatInterface({
           </button>
         </div>
 
-        {/* Chat list */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           <p className="px-2 text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">
             History
@@ -143,13 +200,11 @@ export default function ChatInterface({
           )}
         </div>
 
-        {/* Sidebar footer */}
         <div className="p-4 border-t border-white/10 text-[10px] text-white/40 text-center">
           Smart Daily Assistant
         </div>
       </div>
 
-      {/* Overlay when sidebar is open */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 lg:hidden"
@@ -157,7 +212,7 @@ export default function ChatInterface({
         />
       )}
 
-      {/* Main chat container - centered card */}
+      {/* Main chat card */}
       <div className="relative z-10 flex items-center justify-center h-full px-4 py-6">
         <div className="w-full max-w-4xl h-full flex flex-col bg-[#111122]/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-black/30 overflow-hidden">
           {/* Top bar */}
@@ -175,7 +230,7 @@ export default function ChatInterface({
               <div>
                 <h1 className="text-white text-sm font-semibold leading-tight">Smart Daily Assistant</h1>
                 <p className="text-white/40 text-[10px] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> Online · NVIDIA AI
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> Your personal AI helper
                 </p>
               </div>
             </div>
@@ -188,7 +243,7 @@ export default function ChatInterface({
             </button>
           </div>
 
-          {/* Messages area */}
+          {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
             {activeChat.messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center space-y-5">
@@ -227,13 +282,17 @@ export default function ChatInterface({
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-md ${
+                  className={`max-w-[80%] rounded-2xl shadow-md ${
                     msg.role === "user"
-                      ? "bg-indigo-600 text-white rounded-br-md"
-                      : "bg-white/10 text-white/90 rounded-bl-md border border-white/5 backdrop-blur-sm"
+                      ? "bg-indigo-600 text-white rounded-br-md px-4 py-3"
+                      : "bg-transparent p-0"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                  {msg.role === "user" ? (
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  ) : (
+                    renderMessageContent(msg)
+                  )}
                 </div>
                 {msg.role === "user" && (
                   <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
@@ -291,15 +350,9 @@ export default function ChatInterface({
         </div>
       </div>
 
-      {/* Custom scrollbar (unchanged, but we'll place it here still) */}
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
       `}</style>
     </div>
   );
