@@ -49,7 +49,7 @@ export default function ChatInterface({
       // Format based on response type
       let reply = "";
       if (data.error) {
-        reply = "⚠️ Something went wrong. Please try again.";
+        reply = `⚠️ ${data.error}`;
       } else if (data.type === "plan") {
         reply = `🎯 **Goal:** ${data.goal}\n`;
         data.steps.forEach((step, i) => {
