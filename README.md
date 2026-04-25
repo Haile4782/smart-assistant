@@ -264,7 +264,7 @@ Plan my study schedule for 3 days
 
 ## 👨‍💻 Author
 
-Developed by **Haiyleyesus A. Belay** as part of an **AI Engineer Assessment Project** for ELEC LLC.
+Developed by **Haiyleyesus Abayneh Belay**
 
 ---
 
