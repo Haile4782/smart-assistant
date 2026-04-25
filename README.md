@@ -1,50 +1,67 @@
-# 📄 README.md
-
-```md
 # 🤖 Smart Daily Assistant Agent
 
-A simple AI-powered assistant that helps users organize tasks, break down goals, prioritize work, and generate actionable daily plans.  
-Built as a full-stack agent using **Next.js, NVIDIA NIM API, and Telegram Bot API**, and deployed on **Vercel**.
+A full-stack AI-powered assistant that helps users organize tasks, break down goals, prioritize work, and generate actionable daily plans.
+
+Built as an **agentic AI system** using **Next.js, NVIDIA NIM API, and Telegram Bot API**, and deployed on **Vercel**.
 
 ---
 
 ## 🚀 Live Demo
 
 - 🌐 Web App: https://your-vercel-link.vercel.app  
-- 🤖 Telegram Bot: @your_bot_username  
+- 🤖 Telegram Bot: @smart_daily_assistant_bot  
 
 ---
 
-## 📌 Features
+## 📌 Project Overview
+
+This project demonstrates a **simple AI agent system** that can:
+
+- Understand user intent
+- Break down tasks into structured steps
+- Prioritize actions (High / Medium / Low)
+- Generate actionable daily plans
+- Ask intelligent follow-up questions when needed
+
+It is accessible via:
+- 🌐 Web Chat Interface
+- 🤖 Telegram Bot
+
+Both interfaces share the same AI backend logic.
+
+---
+
+## ✨ Key Features
 
 ### 💬 Smart AI Assistant
-- Understands user goals
-- Breaks tasks into steps
-- Prioritizes actions
-- Suggests daily plans
-- Asks follow-up questions when needed
+- Natural language understanding
+- Task decomposition into steps
+- Priority-based planning
+- Structured responses
+- Context-aware follow-up questions
 
 ### 🌐 Web Chat Interface
-- Clean chatbot UI
-- Real-time AI responses
-- Chat history view
+- Clean and minimal UI
+- Real-time chat experience
+- Chat history display
+- Loading indicator during AI processing
 
-### 🤖 Telegram Bot
-- Same AI engine as web app
-- Instant responses inside Telegram
-- Lightweight and fast interaction
+### 🤖 Telegram Bot Integration
+- Same AI brain as web app
+- Instant messaging support
+- Lightweight and fast response system
 
 ---
 
-## 🧠 AI Agent Behavior
+## 🧠 AI Agent Capabilities
 
-The assistant demonstrates basic agentic capabilities:
+The system demonstrates basic **agentic behavior**, including:
 
-- Goal understanding
-- Task decomposition
-- Prioritization (High / Medium / Low)
-- Structured responses
-- Context-aware follow-up questions
+- Goal interpretation
+- Task breakdown
+- Structured planning
+- Priority classification
+- Interactive follow-up questioning
 
 ---
 
@@ -52,23 +69,26 @@ The assistant demonstrates basic agentic capabilities:
 
 ```
 
-Web App (Next.js)
+User (Web / Telegram)
 │
 ▼
-API Route (/api/chat)
+Next.js Frontend (Web UI)
+Telegram Bot (Node.js)
 │
 ▼
-NVIDIA NIM API (LLM)
+Next.js API Route (/api/chat)
 │
 ▼
-AI Response
+NVIDIA NIM LLM API (Llama 3.1)
 │
-├── Web UI Response
-└── Telegram Bot Response
+▼
+Structured AI Response
+│
+┌───────────────┴───────────────┐
+▼                               ▼
+Web UI Response            Telegram Bot Response
 
 ````
-
-Both Web and Telegram use the same backend logic.
 
 ---
 
@@ -76,8 +96,8 @@ Both Web and Telegram use the same backend logic.
 
 - **Frontend:** Next.js (React)
 - **Backend:** Next.js API Routes
-- **AI Model:** NVIDIA NIM (Llama 3.1)
-- **Bot:** node-telegram-bot-api
+- **AI Model:** NVIDIA NIM (Llama 3.1 Instruct)
+- **Telegram Bot:** node-telegram-bot-api
 - **Deployment:** Vercel
 - **Environment Management:** dotenv
 
@@ -85,13 +105,13 @@ Both Web and Telegram use the same backend logic.
 
 ## 🔐 Security Implementation
 
-To ensure secure deployment:
+This project follows secure coding practices:
 
 - API keys stored in `.env`
 - `.env` excluded via `.gitignore`
-- No secrets committed to GitHub
+- No secrets exposed in frontend code
+- Server-side API calls only
 - Environment variables configured in Vercel
-- Backend-only API calls (no exposed keys in frontend)
 
 ---
 
@@ -99,7 +119,7 @@ To ensure secure deployment:
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Haile4782/smart-assistant.git
+git clone https://github.com/your-username/smart-assistant.git
 cd smart-assistant
 ````
 
@@ -113,7 +133,7 @@ npm install
 
 ---
 
-### 3. Create Environment Variables
+### 3. Setup Environment Variables
 
 Create a `.env` file:
 
@@ -140,10 +160,15 @@ http://localhost:3000
 
 ## 🤖 Telegram Bot Setup
 
-1. Create bot using **@BotFather**
-2. Get bot token
-3. Add token to `.env`
-4. Run bot script:
+1. Open Telegram and search: **@BotFather**
+2. Create a new bot using:
+
+   ```
+   /newbot
+   ```
+3. Copy the bot token
+4. Add it to `.env`
+5. Run bot locally:
 
 ```bash
 node telegram/bot.js
@@ -153,13 +178,16 @@ node telegram/bot.js
 
 ## 🌐 Deployment (Vercel)
 
-1. Push code to GitHub
-2. Import repository in Vercel
-3. Add environment variables:
+Steps to deploy:
+
+1. Push project to GitHub
+2. Go to [https://vercel.com](https://vercel.com)
+3. Import GitHub repository
+4. Add environment variables:
 
    * NVIDIA_API_KEY
    * TELEGRAM_BOT_TOKEN
-4. Deploy
+5. Click **Deploy**
 
 ---
 
@@ -169,8 +197,8 @@ node telegram/bot.js
 smart-assistant/
 │
 ├── app/
-│   ├── page.tsx
-│   ├── layout.tsx
+│   ├── page.js
+│   ├── layout.js
 │   └── api/
 │       └── chat/
 │           └── route.js
@@ -179,61 +207,61 @@ smart-assistant/
 │   └── bot.js
 │
 ├── .env.example
+├── .gitignore
 ├── package.json
 └── README.md
 ```
 
 ---
 
-## 🎯 Evaluation Highlights
+## 📊 Example Output
 
-### ✔ Agent Architecture (30%)
+### Input:
 
-* Shared AI backend for Web & Telegram
-* Modular API design
-* Clear separation of concerns
+```
+Plan my study schedule for 3 days
+```
 
-### ✔ Security (25%)
+### Output:
 
-* Environment variables used
-* No API keys exposed
-* Secure backend API calls
+```
+📌 Summary:
+A structured 3-day study plan to help organize learning effectively.
 
-### ✔ Functionality (20%)
+📋 Steps:
+1. Identify subjects
+2. Allocate time slots
+3. Add review sessions
 
-* Working web chatbot
-* Working Telegram bot
-* Real AI responses
+🔥 Priority:
+High: Identify subjects
+Medium: Allocate schedule
+Low: Add breaks
 
-### ✔ UI/UX (15%)
-
-* Clean and minimal interface
-* Responsive chat layout
-
-### ✔ Documentation (10%)
-
-* Clear setup instructions
-* Architecture explanation
-* Deployment guide
+❓ Follow-up question:
+What subjects are you currently studying?
+```
 
 ---
 
-## 📈 Future Improvements
+## 🚀 Future Improvements
 
-* Add memory (chat history storage)
-* Add task saving database (MongoDB/Firebase)
-* Add voice assistant input
-* Add calendar integration
-* Improve UI design
+* Add persistent memory (chat history database)
+* Integrate calendar scheduling
+* Add voice input/output
+* Improve UI with Tailwind CSS
+* Deploy Telegram bot to cloud server
 
 ---
 
 ## 👨‍💻 Author
 
-Built as an assessment project for **ELEC LLC AI Engineer Application**
+Developed as part of an **AI Engineer Assessment Project** for ELEC LLC.
 
 ---
 
 ## 📌 License
 
-This project is for educational and assessment purposes.
+This project is for educational and assessment purposes only.
+
+````
