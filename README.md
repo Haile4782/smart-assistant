@@ -7,8 +7,8 @@ Built as a full-stack agent using **Next.js, NVIDIA NIM API, and Telegram Bot AP
 
 ## 🚀 Live Demo
 
-- 🌐 Web App: https://your-vercel-link.vercel.app  
-- 🤖 Telegram Bot: @your_bot_username  
+- 🌐 Web App: https://vercel-link.vercel.app  
+- 🤖 Telegram Bot: @smart_daily_assistant_bot
 
 ---
 
