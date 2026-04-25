@@ -7,9 +7,9 @@ export default function Home() {
   const [chats, setChats] = useState([]);
   const [activeId, setActiveId] = useState(null);
 
-  // Load chats safely from localStorage
+  // Load chats from localStorage
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("chats") || "[]");
+    const saved = JSON.parse(localStorage.getItem("assistant_chats") || "[]");
     const cleaned = saved.map((c) => ({
       ...c,
       messages: Array.isArray(c.messages) ? c.messages : [],
@@ -22,9 +22,9 @@ export default function Home() {
     }
   }, []);
 
-  // Save chats to localStorage whenever they change
+  // Save chats to localStorage
   useEffect(() => {
-    localStorage.setItem("chats", JSON.stringify(chats));
+    if (chats.length) localStorage.setItem("assistant_chats", JSON.stringify(chats));
   }, [chats]);
 
   const createNewChat = () => {
@@ -37,7 +37,7 @@ export default function Home() {
     setActiveId(newChat.id);
   };
 
-  const activeChat = chats.find((c) => c.id === activeId) || { messages: [] };
+  const activeChat = chats.find((c) => c.id === activeId) || { id: null, messages: [] };
 
   const updateMessages = (newMessages) => {
     setChats((prev) =>
@@ -56,42 +56,24 @@ export default function Home() {
     );
   };
 
+  const deleteChat = (id) => {
+    setChats((prev) => prev.filter((c) => c.id !== id));
+    if (activeId === id) {
+      const remaining = chats.filter((c) => c.id !== id);
+      if (remaining.length) setActiveId(remaining[0].id);
+      else createNewChat();
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-[#0b0b1a] font-sans">
-      {/* Sidebar */}
-      <div className="w-72 bg-[#0f0f23] border-r border-white/5 flex flex-col p-4">
-        <button
-          onClick={createNewChat}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl mb-6 shadow-lg shadow-indigo-500/20 transition-colors"
-        >
-          + New Chat
-        </button>
-
-        <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
-          {chats.map((chat) => (
-            <div
-              key={chat.id}
-              onClick={() => setActiveId(chat.id)}
-              className={`p-3 rounded-xl cursor-pointer text-sm text-gray-300 transition-colors ${
-                chat.id === activeId
-                  ? "bg-white/10 text-white"
-                  : "hover:bg-white/5"
-              }`}
-            >
-              {chat.title}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-white/5 text-gray-500 text-xs">
-          Smart Daily Assistant
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        <ChatInterface chat={activeChat.messages} setChat={updateMessages} />
-      </div>
-    </div>
+    <ChatInterface
+      chats={chats}
+      activeId={activeId}
+      activeChat={activeChat}
+      onNewChat={createNewChat}
+      onSelectChat={setActiveId}
+      onUpdateMessages={updateMessages}
+      onDeleteChat={deleteChat}
+    />
   );
 }
