@@ -8,7 +8,7 @@ Built as an **agentic AI system** using **Next.js, NVIDIA NIM API, and Telegram 
 
 ## 🚀 Live Demo
 
-- 🌐 Web App: [https://smart-assistant-q3ehbeuce-haile4782s-projects.vercel.app/](https://smart-assistant-q3ehbeuce-haile4782s-projects.vercel.app/)
+- 🌐 Web App: [https://smart-assistant-psi.vercel.app/](https://smart-assistant-psi.vercel.app/)
 - 🤖 Telegram Bot: @smart_daily_assistant_bot  
 
 ---
