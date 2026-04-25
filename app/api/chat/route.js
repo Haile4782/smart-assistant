@@ -1,30 +1,36 @@
 import axios from "axios";
 
+// simple in-memory store (upgrade later to DB)
+const memoryStore = new Map();
+
 export async function POST(req) {
   try {
-    const { message } = await req.json();
+    const { message, userId = "default" } = await req.json();
 
     if (!message) {
-      return Response.json({ error: "No message provided" }, { status: 400 });
+      return Response.json({ error: "No message" }, { status: 400 });
     }
 
-    const prompt = `
+    // get old memory
+    const history = memoryStore.get(userId) || [];
+
+    const aiPrompt = `
 You are a Smart Daily Assistant.
 
-Rules:
-- Be clear and structured
-- Always respond (never empty)
-- Use simple language
+Use conversation memory below:
+${history.map(h => `${h.role}: ${h.text}`).join("\n")}
 
-User request:
-${message}
+User: ${message}
+
+Respond clearly in structured format:
+Summary, Steps, Priority, Follow-up question
 `;
 
     const response = await axios.post(
       "https://integrate.api.nvidia.com/v1/chat/completions",
       {
         model: "meta/llama-3.1-8b-instruct",
-        messages: [{ role: "user", content: prompt }],
+        messages: [{ role: "user", content: aiPrompt }],
         temperature: 0.7,
         max_tokens: 600,
       },
@@ -33,41 +39,21 @@ ${message}
           Authorization: `Bearer ${process.env.NVIDIA_API_KEY}`,
           "Content-Type": "application/json",
         },
-        timeout: 15000,
       }
     );
 
-    const prompt = `
-You are a Smart Daily Assistant AI.
+    const reply = response.data.choices[0].message.content;
 
-RULES:
-- Always respond in clean markdown style
-- Use headings and bullet points
-- Never write long paragraphs
-- Always structure like this:
+    // update memory
+    memoryStore.set(userId, [
+      ...history,
+      { role: "user", text: message },
+      { role: "ai", text: reply },
+    ]);
 
-TITLE
-Summary (1-2 lines)
-
-LIST:
-- item 1
-- item 2
-
-OPTIONAL DETAILS:
-- prices
-- location
-
-User request:
-${message}
-`;
-    const aiReply = response?.data?.choices?.[0]?.message?.content || "⚠️ AI returned empty response. Please try again.";
-    return Response.json({ reply: aiReply });
-  } catch (error) {
-    console.error("AI ERROR:", error?.response?.data || error.message);
-
-    return Response.json(
-      { reply: "⚠️ AI service temporarily unavailable. Try again." },
-      { status: 500 }
-    );
+    return Response.json({ reply });
+  } catch (err) {
+    console.error(err);
+    return Response.json({ error: "AI failed" }, { status: 500 });
   }
 }

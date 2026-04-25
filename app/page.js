@@ -1,26 +1,24 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
 
 export default function Home() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const chatEndRef = useRef(null);
+  const bottomRef = useRef(null);
 
-  // Auto scroll
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat, loading]);
 
   const sendMessage = async () => {
     if (!message.trim()) return;
 
-    const userMessage = message;
+    const userMsg = message;
 
-    setChat((prev) => [...prev, { role: "user", text: userMessage }]);
+    setChat((prev) => [...prev, { role: "user", text: userMsg }]);
     setMessage("");
     setLoading(true);
 
@@ -28,19 +26,19 @@ export default function Home() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMsg }),
       });
 
       const data = await res.json();
 
       setChat((prev) => [
         ...prev,
-        { role: "ai", text: data.reply || "⚠️ No response" },
+        { role: "ai", text: data.reply || "No response" },
       ]);
     } catch (err) {
       setChat((prev) => [
         ...prev,
-        { role: "ai", text: "⚠️ Server error" },
+        { role: "ai", text: "⚠️ AI service error" },
       ]);
     }
 
@@ -48,110 +46,119 @@ export default function Home() {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      height: "100vh",
-      fontFamily: "Inter, Arial"
-    }}>
-
-      {/* SIDEBAR (SaaS feel) */}
-      <div style={{
-        width: 250,
-        background: "#111827",
-        color: "white",
-        padding: 20
-      }}>
-        <h2>🤖 Smart AI</h2>
-        <p style={{ fontSize: 12, opacity: 0.7 }}>
-          Your personal assistant
-        </p>
+    <div style={styles.page}>
+      {/* HEADER */}
+      <div style={styles.header}>
+        🤖 Smart Daily Assistant
       </div>
 
-      {/* MAIN CHAT AREA */}
-      <div style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column"
-      }}>
-
-        {/* CHAT BOX */}
-        <div style={{
-          flex: 1,
-          padding: 20,
-          overflowY: "auto",
-          background: "#f9fafb"
-        }}>
-
-          {chat.map((c, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                justifyContent: c.role === "user" ? "flex-end" : "flex-start",
-                marginBottom: 12
-              }}
-            >
-              <div style={{
-                maxWidth: "70%",
-                padding: 14,
-                borderRadius: 12,
-                background: c.role === "user" ? "#2563eb" : "white",
-                color: c.role === "user" ? "white" : "black",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.05)"
-              }}>
-                {c.role === "ai" ? (
-                  <ReactMarkdown>{c.text}</ReactMarkdown>
-                ) : (
-                  c.text
-                )}
-              </div>
-            </div>
-          ))}
-
-          {loading && (
-            <div style={{ padding: 10, opacity: 0.6 }}>
-              🤔 AI is thinking...
-            </div>
-          )}
-
-          <div ref={chatEndRef} />
-        </div>
-
-        {/* INPUT BAR */}
-        <div style={{
-          padding: 15,
-          borderTop: "1px solid #ddd",
-          display: "flex",
-          gap: 10,
-          background: "white"
-        }}>
-          <input
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Ask anything..."
+      {/* CHAT */}
+      <div style={styles.chatContainer}>
+        {chat.map((c, i) => (
+          <div
+            key={i}
             style={{
-              flex: 1,
-              padding: 14,
-              borderRadius: 10,
-              border: "1px solid #ccc"
-            }}
-          />
-
-          <button
-            onClick={sendMessage}
-            style={{
-              padding: "12px 20px",
-              borderRadius: 10,
-              background: "#2563eb",
+              ...styles.bubble,
+              alignSelf: c.role === "user" ? "flex-end" : "flex-start",
+              background: c.role === "user" ? "#2563eb" : "#1f2937",
               color: "white",
-              border: "none",
-              cursor: "pointer"
             }}
           >
-            Send
-          </button>
-        </div>
+            {c.text}
+          </div>
+        ))}
+
+        {loading && (
+          <div style={styles.typing}>
+            AI is thinking...
+          </div>
+        )}
+
+        <div ref={bottomRef} />
+      </div>
+
+      {/* INPUT */}
+      <div style={styles.inputBar}>
+        <input
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Ask anything..."
+          style={styles.input}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+
+        <button onClick={sendMessage} style={styles.button}>
+          Send
+        </button>
       </div>
     </div>
   );
 }
+
+const styles = {
+  page: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    background: "linear-gradient(to bottom, #0f172a, #020617)",
+    color: "white",
+    fontFamily: "Arial",
+  },
+
+  header: {
+    padding: 18,
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    borderBottom: "1px solid #1f2937",
+  },
+
+  chatContainer: {
+    flex: 1,
+    padding: 20,
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+    overflowY: "auto",
+  },
+
+  bubble: {
+    padding: 12,
+    borderRadius: 14,
+    maxWidth: "75%",
+    fontSize: 14,
+    lineHeight: 1.4,
+  },
+
+  typing: {
+    fontStyle: "italic",
+    opacity: 0.6,
+  },
+
+  inputBar: {
+    display: "flex",
+    padding: 12,
+    borderTop: "1px solid #1f2937",
+    gap: 10,
+    background: "#0b1220",
+  },
+
+  input: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    border: "1px solid #334155",
+    outline: "none",
+    background: "#111827",
+    color: "white",
+  },
+
+  button: {
+    padding: "12px 16px",
+    borderRadius: 10,
+    border: "none",
+    background: "#2563eb",
+    color: "white",
+    cursor: "pointer",
+  },
+};
