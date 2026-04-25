@@ -1,6 +1,5 @@
 # 📄 README.md
 
-```md
 # 🤖 Smart Daily Assistant Agent
 
 A simple AI-powered assistant that helps users organize tasks, break down goals, prioritize work, and generate actionable daily plans.  
