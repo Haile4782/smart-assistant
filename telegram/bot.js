@@ -39,7 +39,7 @@ bot.on("message", async (msg) => {
 
   try {
     // ✅ Call your Next.js API
-    const res = await axios.post("http://127.0.0.1:3000/api/chat", {
+    const res = await axios.post("https://smart-assistant-32gcviwo0-haile4782s-projects.vercel.app/api/chat", {
       message: text,
     });
 

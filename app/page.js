@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function Home() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const chatEndRef = useRef(null);
+
+  // Auto scroll
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat, loading]);
+
   const sendMessage = async () => {
-    if (!message) return;
+    if (!message.trim()) return;
 
     const userMessage = message;
 
@@ -16,53 +24,134 @@ export default function Home() {
     setMessage("");
     setLoading(true);
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message: userMessage }),
-    });
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setChat((prev) => [
-      ...prev,
-      { role: "ai", text: data.reply },
-    ]);
+      setChat((prev) => [
+        ...prev,
+        { role: "ai", text: data.reply || "⚠️ No response" },
+      ]);
+    } catch (err) {
+      setChat((prev) => [
+        ...prev,
+        { role: "ai", text: "⚠️ Server error" },
+      ]);
+    }
 
     setLoading(false);
   };
 
   return (
-    <main style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
-      <h1>Smart Daily Assistant 🤖</h1>
+    <div style={{
+      display: "flex",
+      height: "100vh",
+      fontFamily: "Inter, Arial"
+    }}>
 
-      <div style={{ marginTop: 20 }}>
-        {chat.map((c, i) => (
-          <div key={i} style={{ margin: "10px 0" }}>
-            <b>{c.role === "user" ? "You" : "AI"}:</b> {c.text}
-          </div>
-        ))}
+      {/* SIDEBAR (SaaS feel) */}
+      <div style={{
+        width: 250,
+        background: "#111827",
+        color: "white",
+        padding: 20
+      }}>
+        <h2>🤖 Smart AI</h2>
+        <p style={{ fontSize: 12, opacity: 0.7 }}>
+          Your personal assistant
+        </p>
       </div>
 
-      {loading && <p>Thinking...</p>}
+      {/* MAIN CHAT AREA */}
+      <div style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column"
+      }}>
 
-      <div style={{ marginTop: 20 }}>
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          style={{ width: "80%", padding: 10 }}
-          placeholder="Type your task..."
-        />
+        {/* CHAT BOX */}
+        <div style={{
+          flex: 1,
+          padding: 20,
+          overflowY: "auto",
+          background: "#f9fafb"
+        }}>
 
-        <button
-          onClick={sendMessage}
-          style={{ padding: 10, marginLeft: 10 }}
-        >
-          Send
-        </button>
+          {chat.map((c, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                justifyContent: c.role === "user" ? "flex-end" : "flex-start",
+                marginBottom: 12
+              }}
+            >
+              <div style={{
+                maxWidth: "70%",
+                padding: 14,
+                borderRadius: 12,
+                background: c.role === "user" ? "#2563eb" : "white",
+                color: c.role === "user" ? "white" : "black",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.05)"
+              }}>
+                {c.role === "ai" ? (
+                  <ReactMarkdown>{c.text}</ReactMarkdown>
+                ) : (
+                  c.text
+                )}
+              </div>
+            </div>
+          ))}
+
+          {loading && (
+            <div style={{ padding: 10, opacity: 0.6 }}>
+              🤔 AI is thinking...
+            </div>
+          )}
+
+          <div ref={chatEndRef} />
+        </div>
+
+        {/* INPUT BAR */}
+        <div style={{
+          padding: 15,
+          borderTop: "1px solid #ddd",
+          display: "flex",
+          gap: 10,
+          background: "white"
+        }}>
+          <input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask anything..."
+            style={{
+              flex: 1,
+              padding: 14,
+              borderRadius: 10,
+              border: "1px solid #ccc"
+            }}
+          />
+
+          <button
+            onClick={sendMessage}
+            style={{
+              padding: "12px 20px",
+              borderRadius: 10,
+              background: "#2563eb",
+              color: "white",
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            Send
+          </button>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
