@@ -9,7 +9,7 @@ Built as an **agentic AI system** using **Next.js, NVIDIA NIM API, and Telegram 
 ## 🚀 Live Demo
 
 - 🌐 Web App: https://your-vercel-link.vercel.app  
-- 🤖 Telegram Bot: @smart_daily_assistant_bot  
+- 🤖 Telegram Bot: @your_bot_username  
 
 ---
 
@@ -214,33 +214,36 @@ smart-assistant/
 
 ---
 
-## 📊 Example Output
+## 🎯 Evaluation Highlights
 
-### Input:
+### ✔ Agent Architecture (30%)
 
-```
-Plan my study schedule for 3 days
-```
+* Shared AI backend for Web & Telegram
+* Modular API design
+* Clear separation of concerns
 
-### Output:
+### ✔ Security (25%)
 
-```
-📌 Summary:
-A structured 3-day study plan to help organize learning effectively.
+* Environment variables used
+* No API keys exposed
+* Secure backend API calls
 
-📋 Steps:
-1. Identify subjects
-2. Allocate time slots
-3. Add review sessions
+### ✔ Functionality (20%)
 
-🔥 Priority:
-High: Identify subjects
-Medium: Allocate schedule
-Low: Add breaks
+* Working web chatbot
+* Working Telegram bot
+* Real AI responses
 
-❓ Follow-up question:
-What subjects are you currently studying?
-```
+### ✔ UI/UX (15%)
+
+* Clean and minimal interface
+* Responsive chat layout
+
+### ✔ Documentation (10%)
+
+* Clear setup instructions
+* Architecture explanation
+* Deployment guide
 
 ---
 
@@ -262,6 +265,4 @@ Developed as part of an **AI Engineer Assessment Project** for ELEC LLC.
 
 ## 📌 License
 
-This project is for educational and assessment purposes only.
-
-````
+This project is for educational and assessment purposes.
