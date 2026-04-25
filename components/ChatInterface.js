@@ -14,7 +14,7 @@ export default function ChatInterface({
 }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -46,7 +46,6 @@ export default function ChatInterface({
 
       const data = await res.json();
 
-      // Format based on response type
       let reply = "";
       if (data.error) {
         reply = `⚠️ ${data.error}`;
@@ -78,40 +77,50 @@ export default function ChatInterface({
     }
   };
 
+  // Close sidebar when a chat is selected (mobile mainly)
+  const handleSelectChat = (id) => {
+    onSelectChat(id);
+    setSidebarOpen(false);
+  };
+
   return (
-    <div className="flex h-screen bg-[#09090b] text-zinc-200 overflow-hidden font-sans">
-      {/* ─── SIDEBAR ─── */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0c0c0e] border-r border-zinc-800 flex flex-col transition-transform duration-300 lg:relative lg:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+    <div className="relative h-screen w-screen overflow-hidden bg-[#0a0a1a] font-sans">
+      {/* Animated background gradient orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-gradient-to-br from-indigo-600/30 to-purple-600/30 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute -bottom-20 -right-20 w-[500px] h-[500px] bg-gradient-to-br from-cyan-600/20 to-pink-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '12s', animationDelay: '4s' }} />
+      </div>
+
+      {/* Sidebar overlay */}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0c0e]/95 backdrop-blur-xl border-r border-white/10 flex flex-col transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* New Chat Button */}
-        <div className="p-4">
+        {/* Sidebar header */}
+        <div className="p-4 border-b border-white/10">
           <button
             onClick={onNewChat}
-            className="flex items-center gap-2 w-full p-2.5 border border-zinc-800 rounded-lg hover:bg-zinc-800/50 transition-colors text-sm font-medium"
+            className="flex items-center gap-2 w-full p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition-colors"
           >
-            <Plus size={16} /> New Chat
+            <Plus size={18} /> New Chat
           </button>
         </div>
 
-        {/* Chat List */}
-        <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-1">
-          <p className="px-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 mt-2">
+        {/* Chat list */}
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+          <p className="px-2 text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">
             History
           </p>
           {chats.map((chat) => (
             <div
               key={chat.id}
-              onClick={() => {
-                onSelectChat(chat.id);
-                setIsSidebarOpen(false);
-              }}
-              className={`group flex items-center justify-between px-2 py-2 text-sm rounded-md cursor-pointer transition-colors ${
+              onClick={() => handleSelectChat(chat.id)}
+              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-sm transition-all ${
                 chat.id === activeId
-                  ? "bg-zinc-800/80 text-white"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/40"
+                  ? "bg-white/10 text-white"
+                  : "text-white/60 hover:text-white hover:bg-white/5"
               }`}
             >
               <div className="flex items-center gap-2 truncate">
@@ -123,68 +132,82 @@ export default function ChatInterface({
                   e.stopPropagation();
                   onDeleteChat(chat.id);
                 }}
-                className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-zinc-700 rounded transition-all"
+                className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-white/10 rounded transition-opacity"
               >
-                <Trash2 size={12} className="text-zinc-500 hover:text-red-400" />
+                <Trash2 size={14} className="text-white/50 hover:text-red-400" />
               </button>
             </div>
           ))}
           {chats.length === 0 && (
-            <p className="px-2 text-xs text-zinc-600 mt-4">No conversations yet</p>
+            <p className="px-2 text-xs text-white/30 mt-4">No conversations yet</p>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="p-3 border-t border-zinc-800 text-[10px] text-zinc-600 text-center">
+        {/* Sidebar footer */}
+        <div className="p-4 border-t border-white/10 text-[10px] text-white/40 text-center">
           Smart Daily Assistant
         </div>
-      </aside>
+      </div>
 
-      {/* ─── MAIN CONTENT ─── */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
-        {/* MOBILE HEADER */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 lg:hidden">
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1 hover:bg-zinc-800 rounded"
-          >
-            {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-          <span className="text-sm font-medium">Assistant</span>
-          <div className="w-8" />
-        </header>
+      {/* Overlay when sidebar is open */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-        {/* DESKTOP STATUS BAR */}
-        <div className="hidden lg:flex items-center justify-end px-6 py-2 text-[10px] text-zinc-500 gap-4 border-b border-zinc-800/50">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Online
-          </span>
-          <span>Powered by NVIDIA AI</span>
-        </div>
+      {/* Main chat container - centered card */}
+      <div className="relative z-10 flex items-center justify-center h-full px-4 py-6">
+        <div className="w-full max-w-4xl h-full flex flex-col bg-[#111122]/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl shadow-black/30 overflow-hidden">
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow shadow-purple-500/30">
+                <Bot size={16} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-white text-sm font-semibold leading-tight">Smart Daily Assistant</h1>
+                <p className="text-white/40 text-[10px] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> Online · NVIDIA AI
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onNewChat}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+              title="New Chat"
+            >
+              <Plus size={20} />
+            </button>
+          </div>
 
-        {/* CHAT AREA */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="max-w-3xl mx-auto px-4 py-10 space-y-10">
-            {/* Empty State */}
+          {/* Messages area */}
+          <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
             {activeChat.messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-2 shadow-lg shadow-purple-500/20">
-                  <Bot className="text-white" size={28} />
+              <div className="flex flex-col items-center justify-center py-20 text-center space-y-5">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                  <Bot className="text-white" size={30} />
                 </div>
                 <h2 className="text-xl font-semibold text-white">How can I assist you?</h2>
-                <p className="text-zinc-500 text-sm max-w-sm">
+                <p className="text-white/50 text-sm max-w-xs">
                   I can help with daily planning, task prioritization, or answering questions.
                 </p>
                 <div className="flex gap-2 mt-2 flex-wrap justify-center">
-                  {["Plan my day", "Study schedule", "Task prioritization"].map((suggestion) => (
+                  {["Plan my day", "Study schedule", "Prioritize tasks"].map((suggestion) => (
                     <button
                       key={suggestion}
                       onClick={() => {
                         setInput(suggestion);
-                        // Auto-submit after a tiny delay
                         setTimeout(() => sendMessage({ preventDefault: () => {} }), 100);
                       }}
-                      className="px-3 py-1.5 text-xs border border-zinc-700 rounded-full text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+                      className="px-3 py-1.5 text-xs border border-white/20 rounded-full text-white/70 hover:text-white hover:border-white/40 transition-colors"
                     >
                       {suggestion}
                     </button>
@@ -193,102 +216,89 @@ export default function ChatInterface({
               </div>
             )}
 
-            {/* Messages */}
             {activeChat.messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                    msg.role === "user"
-                      ? "bg-zinc-200"
-                      : "bg-gradient-to-br from-emerald-400 to-teal-500"
-                  }`}
-                >
-                  {msg.role === "user" ? (
-                    <User size={16} className="text-black" />
-                  ) : (
-                    <Bot size={16} className="text-white" />
-                  )}
-                </div>
-                <div
-                  className={`flex flex-col max-w-[85%] ${
-                    msg.role === "user" ? "items-end" : "items-start"
-                  }`}
-                >
-                  <div
-                    className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                      msg.role === "user"
-                        ? "bg-zinc-100 text-zinc-900 font-medium"
-                        : "text-zinc-200"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                {msg.role === "assistant" && (
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0 shadow">
+                    <Bot size={14} className="text-white" />
                   </div>
+                )}
+                <div
+                  className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-md ${
+                    msg.role === "user"
+                      ? "bg-indigo-600 text-white rounded-br-md"
+                      : "bg-white/10 text-white/90 rounded-bl-md border border-white/5 backdrop-blur-sm"
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                 </div>
+                {msg.role === "user" && (
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                    <User size={14} className="text-white" />
+                  </div>
+                )}
               </div>
             ))}
 
-            {/* Loading Indicator */}
             {loading && (
-              <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
-                  <Bot size={16} className="text-white" />
+              <div className="flex gap-3 justify-start">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow">
+                  <Bot size={14} className="text-white" />
                 </div>
-                <div className="flex gap-1 items-center px-4 py-2">
-                  <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce"></div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/5">
+                  <div className="flex gap-1.5">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-1.5 h-1.5 bg-white/60 rounded-full animate-bounce"
+                        style={{ animationDelay: `${i * 150}ms` }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
-        </main>
 
-        {/* INPUT AREA */}
-        <footer className="p-4 bg-[#09090b]">
-          <form onSubmit={sendMessage} className="max-w-3xl mx-auto relative">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask anything..."
-              className="w-full bg-[#121214] border border-zinc-800 rounded-xl pl-4 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all"
-              disabled={loading}
-            />
-            <button
-              type="submit"
-              disabled={loading || !input.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-white disabled:opacity-20 transition-all"
-            >
-              <Send size={18} />
-            </button>
-          </form>
-          <p className="text-[10px] text-zinc-600 text-center mt-3 uppercase tracking-tight">
-            Powered by NVIDIA AI · Llama 3.1
-          </p>
-        </footer>
+          {/* Input area */}
+          <div className="border-t border-white/5 p-4">
+            <form onSubmit={sendMessage} className="relative">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask anything..."
+                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-5 pr-12 py-3.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all backdrop-blur-sm"
+                disabled={loading}
+              />
+              <button
+                type="submit"
+                disabled={loading || !input.trim()}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                <Send size={18} />
+              </button>
+            </form>
+            <p className="text-[10px] text-white/30 text-center mt-3 uppercase tracking-tight">
+              Powered by NVIDIA AI · Llama 3.1
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* OVERLAY for Mobile Sidebar */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Custom Scrollbar */}
+      {/* Custom scrollbar (unchanged, but we'll place it here still) */}
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 3px;
+          width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #27272a;
-          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
         }
       `}</style>
     </div>
