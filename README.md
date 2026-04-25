@@ -182,38 +182,6 @@ smart-assistant/
 
 ---
 
-## 🎯 Evaluation Highlights
-
-### ✔ Agent Architecture (30%)
-
-* Shared AI backend for Web & Telegram
-* Modular API design
-* Clear separation of concerns
-
-### ✔ Security (25%)
-
-* Environment variables used
-* No API keys exposed
-* Secure backend API calls
-
-### ✔ Functionality (20%)
-
-* Working web chatbot
-* Working Telegram bot
-* Real AI responses
-
-### ✔ UI/UX (15%)
-
-* Clean and minimal interface
-* Responsive chat layout
-
-### ✔ Documentation (10%)
-
-* Clear setup instructions
-* Architecture explanation
-* Deployment guide
-
----
 
 ## 📈 Future Improvements
 
